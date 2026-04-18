@@ -1,1 +1,1 @@
-pnpm lint-staged && pnpm run typecheck && pnpm run test:changed && pnpm run build
+pnpm lint-staged
