@@ -4,6 +4,7 @@
   "labels": ["dependencies", "renovate", "bot"],
   "schedule": ["on the 1st and 15th day of the month"],
   "minimumReleaseAge": "3 days",
+  "pinDigests": true,
   "rangeStrategy": "pin",
   "automergeStrategy": "squash",
   "commitMessagePrefix": "chore(deps):",
