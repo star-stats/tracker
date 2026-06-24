@@ -157,6 +157,9 @@ const defaultConfig = {
   notificationThreshold: 0,
   trackStargazers: false,
   topRepos: 10,
+  smartSampling: false,
+  smartSamplingThreshold: 1500,
+  smartSamplingPages: 30,
 };
 
 const defaultSummary = {
@@ -232,6 +235,7 @@ const defaultTranslations = {
     starredOn: 'starred on {date}',
     noNewStargazers: 'No new stargazers since last run',
     stargazerCount: '{count} new',
+    sampledNote: 'Sampled repositories: {repos}',
   },
   forecast: {
     sectionTitle: 'Growth Forecast',
