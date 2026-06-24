@@ -40132,14 +40132,16 @@ async function trackStars() {
         writeStargazers({ dataDir, stargazerMap: updatedMap });
         info(`Found ${stargazerDiff.totalNew} new stargazers`);
       }
+      const snapshot = createSnapshot({ currentRepos: repos, summary: summary2 });
+      const updatedHistory = addSnapshot({ history, snapshot, maxHistory: config.maxHistory });
       const sorted = [...results.repos].filter((repo) => !repo.isRemoved).sort((a, b) => b.current - a.current);
       const topRepoNames = sorted.slice(0, config.topRepos).map((repo) => repo.fullName);
-      const forecastData = computeForecast({ history, topRepoNames });
+      const forecastData = computeForecast({ history: updatedHistory, topRepoNames });
       const markdownReport = generateMarkdownReport({
         results,
         previousTimestamp,
         locale: config.locale,
-        history,
+        history: updatedHistory,
         includeCharts: config.includeCharts,
         stargazerDiff,
         forecastData,
@@ -40149,7 +40151,7 @@ async function trackStars() {
         results,
         previousTimestamp,
         locale: config.locale,
-        history,
+        history: updatedHistory,
         includeCharts: config.includeCharts,
         stargazerDiff,
         forecastData,
@@ -40157,8 +40159,6 @@ async function trackStars() {
       });
       const csvReport = generateCsvReport(results);
       const badge = generateBadge({ totalStars: summary2.totalStars, locale: config.locale });
-      const snapshot = createSnapshot({ currentRepos: repos, summary: summary2 });
-      const updatedHistory = addSnapshot({ history, snapshot, maxHistory: config.maxHistory });
       const thresholdReached = shouldNotify({
         totalStars: summary2.totalStars,
         starsAtLastNotification: history.starsAtLastNotification,
@@ -40172,9 +40172,9 @@ async function trackStars() {
       writeReport({ dataDir, markdown: markdownReport });
       writeBadge({ dataDir, svg: badge });
       writeCsv({ dataDir, csv: csvReport });
-      if (config.includeCharts && history.snapshots.length >= MIN_SNAPSHOTS_FOR_CHART) {
+      if (config.includeCharts && updatedHistory.snapshots.length >= MIN_SNAPSHOTS_FOR_CHART) {
         const svgChart = generateSvgChart({
-          history,
+          history: updatedHistory,
           title: t.report.starHistory,
           locale: config.locale
         });
@@ -40183,7 +40183,7 @@ async function trackStars() {
         }
         for (const repoName of topRepoNames) {
           const repoChart = generatePerRepoSvgChart({
-            history,
+            history: updatedHistory,
             repoFullName: repoName,
             locale: config.locale
           });
@@ -40194,7 +40194,7 @@ async function trackStars() {
         }
         if (topRepoNames.length > 0) {
           const comparisonChart = generateComparisonSvgChart({
-            history,
+            history: updatedHistory,
             repoNames: topRepoNames,
             title: t.report.topRepositories,
             locale: config.locale
@@ -40205,7 +40205,7 @@ async function trackStars() {
         }
         if (forecastData) {
           const forecastChart = generateForecastSvgChart({
-            history,
+            history: updatedHistory,
             forecastData,
             locale: config.locale
           });

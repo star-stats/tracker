@@ -1,3 +1,10 @@
+## [1.8.9](https://github.com/fbuireu/github-star-tracker/compare/v1.8.8...v1.8.9) (2026-06-24)
+
+
+### Bug Fixes
+
+* generate charts using the updated history (closes [#90](https://github.com/fbuireu/github-star-tracker/issues/90)) ([#92](https://github.com/fbuireu/github-star-tracker/issues/92)) ([f8005c7](https://github.com/fbuireu/github-star-tracker/commit/f8005c7a32ad04a0abb53cbe6838ec5c55fab9e8))
+
 ## [1.8.8](https://github.com/fbuireu/github-star-tracker/compare/v1.8.7...v1.8.8) (2026-06-23)
 
 
