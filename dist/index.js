@@ -35622,7 +35622,8 @@ var DEFAULTS2 = {
   chartLineColor: "#dfb317",
   chartLineWidth: 2.5,
   chartMaxPoints: 30,
-  chartYAxisSide: ChartAxisSide.LEFT
+  chartYAxisSide: ChartAxisSide.LEFT,
+  chartSmoothing: true
 };
 
 // src/i18n/ca.json
@@ -38286,11 +38287,11 @@ function parseNumber(value) {
   const n = Number.parseInt(value, 10);
   return Number.isNaN(n) ? void 0 : n;
 }
-var HEX_COLOR_PATTERN = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+var HEX_COLOR_PATTERN = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 function parseHexColor(value) {
   if (value === "" || value === void 0 || value === null) return void 0;
-  const trimmed = value.trim();
-  return HEX_COLOR_PATTERN.test(trimmed) ? trimmed.toLowerCase() : void 0;
+  const match = HEX_COLOR_PATTERN.exec(value.trim());
+  return match ? `#${match[1].toLowerCase()}` : void 0;
 }
 function parseDecimal(value) {
   if (value === "" || value === void 0 || value === null) return void 0;
@@ -38345,7 +38346,8 @@ function loadConfigFile(configPath) {
     chartLineColor: readFileKey(parsed, "chart_line_color"),
     chartLineWidth: readFileKey(parsed, "chart_line_width"),
     chartMaxPoints: readFileKey(parsed, "chart_max_points"),
-    chartYAxisSide: readFileKey(parsed, "chart_y_axis_side")
+    chartYAxisSide: readFileKey(parsed, "chart_y_axis_side"),
+    chartSmoothing: readFileKey(parsed, "chart_smoothing")
   };
 }
 function loadConfig() {
@@ -38373,6 +38375,7 @@ function loadConfig() {
   const inputChartLineWidth = getInput("chart-line-width");
   const inputChartMaxPoints = getInput("chart-max-points");
   const inputChartYAxisSide = getInput("chart-y-axis-side");
+  const inputChartSmoothing = getInput("chart-smoothing");
   const visibility = inputVisibility || fileConfig.visibility || DEFAULTS2.visibility;
   if (!(visibility in VISIBILITY_CONFIG)) {
     throw new Error(
@@ -38426,7 +38429,8 @@ function loadConfig() {
     chartLineColor,
     chartLineWidth,
     chartMaxPoints: parseNumber(inputChartMaxPoints) ?? fileConfig.chartMaxPoints ?? DEFAULTS2.chartMaxPoints,
-    chartYAxisSide
+    chartYAxisSide,
+    chartSmoothing: parseBool(inputChartSmoothing) ?? fileConfig.chartSmoothing ?? DEFAULTS2.chartSmoothing
   };
   info(
     `Config: visibility=${config.visibility}, includeArchived=${config.includeArchived}, includeForks=${config.includeForks}`
@@ -39914,11 +39918,17 @@ function scaleY({ value, minValue, maxValue, chartTop, chartHeight }) {
   if (maxValue === minValue) return chartTop + chartHeight / 2;
   return chartTop + chartHeight - (value - minValue) / (maxValue - minValue) * chartHeight;
 }
-function generateSmoothPath(points) {
+function generateSmoothPath(points, smooth = true) {
   if (points.length === 0) return "";
   if (points.length === 1) return `M${points[0].x},${points[0].y}`;
-  const tension = 0.4;
   let d = `M${points[0].x},${points[0].y}`;
+  if (!smooth) {
+    for (let i = 1; i < points.length; i++) {
+      d += ` L${points[i].x},${points[i].y}`;
+    }
+    return d;
+  }
+  const tension = 0.4;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[Math.max(0, i - 1)];
     const p1 = points[i];
@@ -39977,15 +39987,17 @@ function renderSvg({
   showLegend,
   milestones = false,
   lineWidth: lineWidthParam,
-  yAxisSide = "left"
+  yAxisSide = ChartAxisSide.LEFT,
+  smoothing = true
 }) {
   const { margin, pointRadius, gridOpacity, fontSize, animation, font } = SVG_CHART;
   const lineWidth = lineWidthParam ?? SVG_CHART.lineWidth;
   const chartWidth = CHART.width - margin.left - margin.right;
   const chartHeight = CHART.height - margin.top - margin.bottom;
-  const yAxisX = yAxisSide === "right" ? CHART.width - margin.right : margin.left;
-  const yLabelX = yAxisSide === "right" ? CHART.width - margin.right + 8 : margin.left - 8;
-  const yLabelAnchor = yAxisSide === "right" ? "start" : "end";
+  const isRightAxis = yAxisSide === ChartAxisSide.RIGHT;
+  const yAxisX = isRightAxis ? CHART.width - margin.right : margin.left;
+  const yLabelX = isRightAxis ? CHART.width - margin.right + 8 : margin.left - 8;
+  const yLabelAnchor = isRightAxis ? "start" : "end";
   const allValues = datasets.flatMap((ds) => ds.data.filter((v) => v !== null));
   const minData = Math.min(...allValues);
   const maxData = Math.max(...allValues);
@@ -40031,7 +40043,7 @@ function renderSvg({
       validSegments.push({ points: currentSegment, startIndex: segmentStart });
     }
     return validSegments.map((segment) => {
-      const pathD = generateSmoothPath(segment.points);
+      const pathD = generateSmoothPath(segment.points, smoothing);
       const pathLength = calculatePathLength(segment.points);
       const fillArea = ds.fill !== false && !ds.dashed ? (() => {
         const first = segment.points[0];
@@ -40138,7 +40150,8 @@ function generateSvgChart({
   lineColor,
   lineWidth,
   maxPoints,
-  yAxisSide
+  yAxisSide,
+  smoothing
 }) {
   if (!history.snapshots || history.snapshots.length < 2) {
     return null;
@@ -40153,7 +40166,8 @@ function generateSvgChart({
     showLegend: false,
     milestones: true,
     lineWidth,
-    yAxisSide
+    yAxisSide,
+    smoothing
   });
 }
 function generatePerRepoSvgChart({
@@ -40164,7 +40178,8 @@ function generatePerRepoSvgChart({
   lineColor,
   lineWidth,
   maxPoints,
-  yAxisSide
+  yAxisSide,
+  smoothing
 }) {
   if (!history.snapshots || history.snapshots.length < 2) {
     return null;
@@ -40182,7 +40197,8 @@ function generatePerRepoSvgChart({
     showLegend: false,
     milestones: false,
     lineWidth,
-    yAxisSide
+    yAxisSide,
+    smoothing
   });
 }
 function generateComparisonSvgChart({
@@ -40192,7 +40208,8 @@ function generateComparisonSvgChart({
   locale,
   lineWidth,
   maxPoints,
-  yAxisSide
+  yAxisSide,
+  smoothing
 }) {
   if (!history.snapshots || history.snapshots.length < 2 || repoNames.length === 0) {
     return null;
@@ -40223,7 +40240,8 @@ function generateComparisonSvgChart({
     showLegend: true,
     milestones: false,
     lineWidth,
-    yAxisSide
+    yAxisSide,
+    smoothing
   });
 }
 function generateForecastSvgChart({
@@ -40234,7 +40252,8 @@ function generateForecastSvgChart({
   lineColor,
   lineWidth,
   maxPoints,
-  yAxisSide
+  yAxisSide,
+  smoothing
 }) {
   if (!history.snapshots || history.snapshots.length < 2) {
     return null;
@@ -40292,7 +40311,8 @@ function generateForecastSvgChart({
     showLegend: true,
     milestones: false,
     lineWidth,
-    yAxisSide
+    yAxisSide,
+    smoothing
   });
 }
 
@@ -40392,7 +40412,8 @@ async function trackStars() {
           lineColor: config.chartLineColor,
           lineWidth: config.chartLineWidth,
           maxPoints: config.chartMaxPoints,
-          yAxisSide: config.chartYAxisSide
+          yAxisSide: config.chartYAxisSide,
+          smoothing: config.chartSmoothing
         });
         if (svgChart) {
           writeChart({ dataDir, filename: "star-history.svg", svg: svgChart });
@@ -40405,7 +40426,8 @@ async function trackStars() {
             lineColor: config.chartLineColor,
             lineWidth: config.chartLineWidth,
             maxPoints: config.chartMaxPoints,
-            yAxisSide: config.chartYAxisSide
+            yAxisSide: config.chartYAxisSide,
+            smoothing: config.chartSmoothing
           });
           if (repoChart) {
             const filename = `${repoName.replace("/", "-")}.svg`;
@@ -40420,7 +40442,8 @@ async function trackStars() {
             locale: config.locale,
             lineWidth: config.chartLineWidth,
             maxPoints: config.chartMaxPoints,
-            yAxisSide: config.chartYAxisSide
+            yAxisSide: config.chartYAxisSide,
+            smoothing: config.chartSmoothing
           });
           if (comparisonChart) {
             writeChart({ dataDir, filename: "comparison.svg", svg: comparisonChart });
@@ -40434,7 +40457,8 @@ async function trackStars() {
             lineColor: config.chartLineColor,
             lineWidth: config.chartLineWidth,
             maxPoints: config.chartMaxPoints,
-            yAxisSide: config.chartYAxisSide
+            yAxisSide: config.chartYAxisSide,
+            smoothing: config.chartSmoothing
           });
           if (forecastChart) {
             writeChart({ dataDir, filename: "forecast.svg", svg: forecastChart });

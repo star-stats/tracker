@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/fbuireu/github-star-tracker/compare/v1.12.0...v1.13.0) (2026-06-24)
+
+
+### Features
+
+* chart smoothing toggle, lenient hex color, chart docs ([#102](https://github.com/fbuireu/github-star-tracker/issues/102)) ([fed935f](https://github.com/fbuireu/github-star-tracker/commit/fed935f28f7d885eb473f370791e3d9665bdafc5)), closes [#100](https://github.com/fbuireu/github-star-tracker/issues/100) [#104](https://github.com/fbuireu/github-star-tracker/issues/104) [#103](https://github.com/fbuireu/github-star-tracker/issues/103) [#96](https://github.com/fbuireu/github-star-tracker/issues/96) [#98](https://github.com/fbuireu/github-star-tracker/issues/98) [#99](https://github.com/fbuireu/github-star-tracker/issues/99) [#100](https://github.com/fbuireu/github-star-tracker/issues/100) [#103](https://github.com/fbuireu/github-star-tracker/issues/103)
+
 # [1.12.0](https://github.com/fbuireu/github-star-tracker/compare/v1.11.0...v1.12.0) (2026-06-24)
 
 
