@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/fbuireu/github-star-tracker/compare/v1.13.0...v1.13.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* handle empty and malformed config files with js-yaml v5 ([#105](https://github.com/fbuireu/github-star-tracker/issues/105)) ([c288702](https://github.com/fbuireu/github-star-tracker/commit/c28870268c8907d09fdd503c8ec17739b6e9cc9a))
+
 # [1.13.0](https://github.com/fbuireu/github-star-tracker/compare/v1.12.0...v1.13.0) (2026-06-24)
 
 
