@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/fbuireu/github-star-tracker/compare/v1.15.1...v1.16.0) (2026-06-25)
+
+
+### Features
+
+* anchor chart line to baseline so it starts from zero ([#117](https://github.com/fbuireu/github-star-tracker/issues/117)) ([fb6f891](https://github.com/fbuireu/github-star-tracker/commit/fb6f891dac85710eaed61588ff173254031dd06d))
+
 ## [1.15.1](https://github.com/fbuireu/github-star-tracker/compare/v1.15.0...v1.15.1) (2026-06-25)
 
 

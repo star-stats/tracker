@@ -39987,12 +39987,17 @@ function renderSvg({
       validSegments.push({ points: currentSegment, startIndex: segmentStart });
     }
     return validSegments.map((segment) => {
-      const pathD = generateSmoothPath({ points: segment.points, smooth: smoothing });
-      const pathLength = calculatePathLength(segment.points);
+      const bottomY = CHART.height - margin.bottom;
+      const startsFromBaseline = ds.fill !== false && !ds.dashed && segment.startIndex === 0;
+      const firstPoint = segment.points[0];
+      const smoothPath = generateSmoothPath({ points: segment.points, smooth: smoothing });
+      const pathD = startsFromBaseline ? `M${firstPoint.x},${bottomY} L${firstPoint.x},${firstPoint.y}${smoothPath.slice(`M${firstPoint.x},${firstPoint.y}`.length)}` : smoothPath;
+      const pathLength = calculatePathLength(
+        startsFromBaseline ? [{ x: firstPoint.x, y: bottomY }, ...segment.points] : segment.points
+      );
       const fillArea = ds.fill !== false && !ds.dashed ? (() => {
         const first = segment.points[0];
         const last = segment.points.at(-1);
-        const bottomY = CHART.height - margin.bottom;
         return `<path d="${pathD} L${last.x},${bottomY} L${first.x},${bottomY} Z" fill="${ds.color}" fill-opacity="0.1" />`;
       })() : "";
       const dashAttr = ds.dashed ? ' stroke-dasharray="8,4"' : "";
