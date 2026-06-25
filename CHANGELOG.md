@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/fbuireu/github-star-tracker/compare/v1.16.1...v1.16.2) (2026-06-25)
+
+
+### Bug Fixes
+
+* make built-in mailer reliable and add file-based HTML report output ([#119](https://github.com/fbuireu/github-star-tracker/issues/119)) ([#120](https://github.com/fbuireu/github-star-tracker/issues/120)) ([25d6a94](https://github.com/fbuireu/github-star-tracker/commit/25d6a94b2cec59f8f01a6ea92a1a6a163728923a))
+
 ## [1.16.1](https://github.com/fbuireu/github-star-tracker/compare/v1.16.0...v1.16.1) (2026-06-25)
 
 

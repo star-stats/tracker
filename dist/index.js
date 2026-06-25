@@ -32987,10 +32987,10 @@ var Octokit = class {
   auth;
 };
 
-// node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
+// node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
 var VERSION5 = "17.0.0";
 
-// node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
+// node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/generated/endpoints.js
 var Endpoints = {
   actions: {
     addCustomLabelsToSelfHostedRunnerForOrg: [
@@ -35282,7 +35282,7 @@ var Endpoints = {
 };
 var endpoints_default = Endpoints;
 
-// node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
+// node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/endpoints-to-methods.js
 var endpointMethodsMap = /* @__PURE__ */ new Map();
 for (const [scope, endpoints] of Object.entries(endpoints_default)) {
   for (const [methodName, endpoint2] of Object.entries(endpoints)) {
@@ -35405,7 +35405,7 @@ function decorate(octokit, scope, methodName, defaults2, decorations) {
   return Object.assign(withDecorations, requestWithDefaults);
 }
 
-// node_modules/.pnpm/@octokit+plugin-rest-endpoi_88f1cfdccbcd12f9bd89a662a3d08bce/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
+// node_modules/.pnpm/@octokit+plugin-rest-endpoint-methods@17.0.0_@octokit+core@7.0.6/node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/index.js
 function restEndpointMethods(octokit) {
   const api = endpointsToMethods(octokit);
   return {
@@ -38998,6 +38998,15 @@ async function fetchSampledStargazers({
 // src/infrastructure/notification/email.ts
 var import_nodemailer = __toESM(require_nodemailer());
 var SECURE_SMTP_PORT = 465;
+function resolveFromAddress({ from, username }) {
+  if (from.includes("@")) {
+    return from;
+  }
+  if (username.includes("@")) {
+    return `${from} <${username}>`;
+  }
+  return from;
+}
 function getEmailConfig(locale) {
   const host = getInput("smtp-host");
   if (!host) return null;
@@ -39031,13 +39040,18 @@ async function sendEmail({
     secure,
     auth: emailConfig.username && emailConfig.password ? { user: emailConfig.username, pass: emailConfig.password } : void 0
   });
+  const from = resolveFromAddress({ from: emailConfig.from, username: emailConfig.username });
   const info2 = await transporter.sendMail({
-    from: emailConfig.from,
+    from,
     to: emailConfig.to,
     subject,
     html: htmlBody
   });
-  info(`Email sent: ${info2.messageId}`);
+  const rejected = info2.rejected ?? [];
+  if (rejected.length > 0) {
+    warning(`Email rejected for: ${rejected.join(", ")}`);
+  }
+  info(`Email sent to ${emailConfig.to} (message ID: ${info2.messageId})`);
   return true;
 }
 
@@ -39086,6 +39100,12 @@ function readStargazers(dataDir) {
 }
 function writeStargazers({ dataDir, stargazerMap }) {
   writeJsonFile({ filePath: path3.join(dataDir, "stargazers.json"), data: stargazerMap });
+}
+function writeHtmlReport({ htmlReport }) {
+  const outputDir = process.env.RUNNER_TEMP || process.cwd();
+  const filePath = path3.join(outputDir, "star-tracker-report.html");
+  fs5.writeFileSync(filePath, htmlReport);
+  return filePath;
 }
 function writeCsv({ dataDir, csv }) {
   const filePath = path3.join(dataDir, "stars-data.csv");
@@ -40498,7 +40518,9 @@ function setEmptyOutputs() {
   setOutput("should-notify", "false");
   setOutput("new-stargazers", "0");
   setOutput("report", "No repositories matched the configured filters.");
-  setOutput("report-html", "<p>No repositories matched the configured filters.</p>");
+  const htmlReport = "<p>No repositories matched the configured filters.</p>";
+  setOutput("report-html", htmlReport);
+  setOutput("report-html-path", writeHtmlReport({ htmlReport }));
   setOutput("report-csv", "");
 }
 function setOutputs({
@@ -40511,6 +40533,7 @@ function setOutputs({
 }) {
   setOutput("report", markdownReport);
   setOutput("report-html", htmlReport);
+  setOutput("report-html-path", writeHtmlReport({ htmlReport }));
   setOutput("report-csv", csvReport);
   setOutput("total-stars", String(summary2.totalStars));
   setOutput("stars-changed", String(summary2.changed));
