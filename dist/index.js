@@ -38846,6 +38846,8 @@ async function getRepos({ octokit, config }) {
 
 // src/infrastructure/github/stargazers.ts
 var STARGAZERS_PER_PAGE = 100;
+var MAX_REACHABLE_STARGAZERS = 4e4;
+var MAX_REACHABLE_PAGE = Math.floor(MAX_REACHABLE_STARGAZERS / STARGAZERS_PER_PAGE);
 async function fetchAllStargazers({
   octokit,
   repos,
@@ -38913,7 +38915,7 @@ async function fetchRepoStargazers({
     itemCount = items.length;
     stargazers.push(...items);
     page++;
-  } while (itemCount >= STARGAZERS_PER_PAGE);
+  } while (itemCount >= STARGAZERS_PER_PAGE && page <= MAX_REACHABLE_PAGE);
   return stargazers;
 }
 function selectSampledPages({ totalPages, maxPages }) {
@@ -38935,7 +38937,10 @@ async function fetchSampledStargazers({
   totalStars,
   maxPages
 }) {
-  const totalPages = Math.max(1, Math.ceil(totalStars / STARGAZERS_PER_PAGE));
+  const totalPages = Math.min(
+    MAX_REACHABLE_PAGE,
+    Math.max(1, Math.ceil(totalStars / STARGAZERS_PER_PAGE))
+  );
   const pages = selectSampledPages({ totalPages, maxPages });
   const stargazers = [];
   for (const page of pages) {

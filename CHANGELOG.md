@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/fbuireu/github-star-tracker/compare/v1.14.1...v1.14.2) (2026-06-25)
+
+
+### Bug Fixes
+
+* clamp stargazer pagination to GitHub's 40,000-result limit ([#111](https://github.com/fbuireu/github-star-tracker/issues/111)) ([5ae0ffd](https://github.com/fbuireu/github-star-tracker/commit/5ae0ffdc115f39076df4fe89d25d80261c0890a0))
+
 ## [1.14.1](https://github.com/fbuireu/github-star-tracker/compare/v1.14.0...v1.14.1) (2026-06-25)
 
 
