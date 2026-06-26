@@ -1,3 +1,10 @@
+## [1.16.3](https://github.com/fbuireu/github-star-tracker/compare/v1.16.2...v1.16.3) (2026-06-26)
+
+
+### Bug Fixes
+
+* honor chart-smoothing in email charts ([#121](https://github.com/fbuireu/github-star-tracker/issues/121)) ([90944d8](https://github.com/fbuireu/github-star-tracker/commit/90944d80de1a399ff59e98082c7c12479e7b9a73))
+
 ## [1.16.2](https://github.com/fbuireu/github-star-tracker/compare/v1.16.1...v1.16.2) (2026-06-25)
 
 
