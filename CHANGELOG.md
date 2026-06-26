@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/fbuireu/github-star-tracker/compare/v1.17.0...v1.18.0) (2026-06-26)
+
+
+### Features
+
+* add chart-animation option ([#123](https://github.com/fbuireu/github-star-tracker/issues/123)) ([9cb3bb1](https://github.com/fbuireu/github-star-tracker/commit/9cb3bb1c3ebce4af9c7d9eafe6f7e2083f7337c6))
+
 # [1.17.0](https://github.com/fbuireu/github-star-tracker/compare/v1.16.3...v1.17.0) (2026-06-26)
 
 
